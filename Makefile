@@ -1,9 +1,8 @@
-TARGETS := libbaseXX.so base_test
+TARGETS = base_test
 
-CC := gcc
-CFLAGS := -fPIC -O0 -ggdb3
-LDLIBS :=
+CFLAGS := -fPIC -O2 -Wall -Wextra
 
+CC ?= gcc
 LIB_SRCS := \
 	baseXX.c \
 	base32.c \
