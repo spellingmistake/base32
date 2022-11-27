@@ -96,6 +96,15 @@ static char byte_to_baseXX(const char *ptr, size_t len, size_t ptr_idx,
 		}
 	}
 
+	if ((size_t)(c[0] | c[1]) > (conv->alphabet_size - 1))
+	{
+		fprintf(stderr, "converted value 0x%02hhx at postion %zu of input is "
+				"outside the destination alphabet\n", (u_char)(c[0] | c[1]),
+				offset);
+		c[0] = conv->alphabet_size - 1;
+		c[1] = 0;
+	}
+
 	return conv->alphabet[c[0] | c[1]];
 }
 
