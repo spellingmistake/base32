@@ -4,15 +4,26 @@
 
 #include "baseXX.h"
 
-static char *alloc_output_buffer_to_baseXX(size_t len, size_t base_bits)
+static char *alloc_output_buffer_to_baseXX(size_t len, size_t bits_per_chunk,
+	size_t base_bits)
 {
+	size_t modulus;
 	char *dst = NULL;
 
-	len = ((len + base_bits - 1) / base_bits) * 8;
-	len += len / OUTPUT_WIDTH + 1;
+	/* output characters only */
+	len = (len * 8 + (base_bits - 1)) / base_bits;
+	/* padding */
+	modulus = len % (bits_per_chunk / base_bits);
+	len += modulus ? (bits_per_chunk / base_bits) - modulus : 0;
+	/* line breaks */
+	len += ((len + OUTPUT_WIDTH - 1) / OUTPUT_WIDTH) - 1;
 
-	dst = malloc(len);
-	dst[len - 1] = '\0';
+	/* + 1 for the terminating '\0' */
+	dst = malloc(len + 1);
+	dst[len] = 0;
+
+	return dst;
+}
 
 	return dst;
 }
@@ -134,8 +145,9 @@ char *str_to_baseXX(const char *ptr, size_t len, baseXX_conversion_t *conv)
 	char *dst;
 	size_t i, idx_in, idx_out, end, offset;
 
-	offset = conv->conv_array_size * conv->base_bits / 8;
-	dst = alloc_output_buffer_to_baseXX(len, conv->base_bits);
+	offset = conv->conv_array_size * conv->base_bits;
+	dst = alloc_output_buffer_to_baseXX(len, offset, conv->base_bits);
+	offset /= 8;
 
 	idx_in = idx_out = 0;
 	end = ((len + offset - 1) / offset) * offset;
