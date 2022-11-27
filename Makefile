@@ -4,16 +4,24 @@ CC := gcc
 CFLAGS := -fPIC -O0 -ggdb3
 LDLIBS :=
 
+LIB_SRCS := \
+	baseXX.c \
+	base32.c \
+	base64.c
+LIB_OBJS := $(LIB_SRCS:.c=.o)
+LIB := libbaseXX.so
+
 all: $(TARGETS)
 
-libbaseXX.so: CFLAGS += -shared
-base_test: LDLIBS := -lbaseXX
-base_test: LDFLAGS := -L.
+base_test: LDLIBS += -lbaseXX
+base_test: LDFLAGS += -L.
+base_test: $(LIB)
 
-libbaseXX.so: base32.o baseXX.o
-	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ $^ $(LDFLAGS) $(LDLIBS)
+$(LIB): LDFLAGS += -shared
+$(LIB): $(LIB_OBJS)
+	$(CC) $(CPPFLAGS) $(CFLAGS) -shared -o $@ $^ $(LDFLAGS) $(LDLIBS)
 
 clean:
-	@rm -f $(TARGETS) *.o
+	@rm -f $(TARGETS) $(LIB) *.o
 
 .PHONY: all clean

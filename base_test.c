@@ -35,6 +35,29 @@ static void test_base32(const char *input)
 	assert(!memcmp(buf, input, len));
 }
 
+static void test_base64(const char *input)
+{
+	size_t len;
+	bool printable = true;
+	char *b64 __CLEANUP(cleanup_free) = NULL,
+		 *buf __CLEANUP(cleanup_free) = NULL;
+
+	b64 = str_to_base64(input, strlen(input));
+	fprintf(stdout, "%s\n", b64);
+	buf = base64_to_str(b64, strlen(b64), &len, &printable);
+	if (printable)
+	{
+		fprintf(stdout, "%s\n", buf);
+	}
+	else
+	{
+		fprintf(stdout, "output contains unprintable characters\n", buf);
+	}
+
+	assert(len == strlen(input));
+	assert(!memcmp(buf, input, len));
+}
+
 int main(int argc __UNUSED, char *argv[] __UNUSED)
 {
 	char *input;
@@ -45,6 +68,9 @@ int main(int argc __UNUSED, char *argv[] __UNUSED)
 	test_base32(input);
 	test_base32("12");
 	test_base32("123");
+	test_base64(input);
+	test_base64("12");
+	test_base64("123");
 
 	return 0;
 }
