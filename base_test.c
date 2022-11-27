@@ -28,7 +28,7 @@ static void test_base32(const char *input)
 	}
 	else
 	{
-		fprintf(stdout, "output contains unprintable characters\n", buf);
+		fprintf(stdout, "output contains unprintable characters\n");
 	}
 
 	assert(len == strlen(input));
@@ -51,7 +51,7 @@ static void test_base64(const char *input)
 	}
 	else
 	{
-		fprintf(stdout, "output contains unprintable characters\n", buf);
+		fprintf(stdout, "output contains unprintable characters\n");
 	}
 
 	assert(len == strlen(input));
