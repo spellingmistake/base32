@@ -25,6 +25,42 @@ static char *alloc_output_buffer_to_baseXX(size_t len, size_t bits_per_chunk,
 	return dst;
 }
 
+static char *alloc_output_buffer_from_baseXX(const char *ptr, size_t len,
+		baseXX_conversion_t *conv)
+{
+	char *dst = NULL;
+	const char *pad, *tmp;
+	size_t newlines, base_bits;
+
+	if (len)
+	{
+		pad = strchr(ptr, PADDING) ?: ptr + len;
+
+		if (pad - ptr)
+		{
+			newlines = 0;
+			tmp = ptr;
+
+			while ((tmp = strchr(tmp, '\n')) && (tmp < pad))
+			{
+				++newlines;
+				++tmp;
+			}
+
+			base_bits = conv->base_bits;
+			/* without padding */
+			len = (pad - ptr);
+			/* without newlines */
+			len -= newlines;
+			/* mapped onto byte size */
+			len = (len * base_bits + base_bits - 1) / 8;
+
+			/* the output buffer from baseXX is logically or'd repeatedly;
+			 * hence it is crucial to work on properly zeroed memory */
+			dst = calloc(len + 1, 1);
+		}
+	}
+
 	return dst;
 }
 
@@ -172,42 +208,28 @@ char *baseXX_to_str(const char *ptr, size_t len, size_t *ptr_len,
 		bool *printable, baseXX_conversion_t *conv)
 {
 	char c;
-	const char *tmp;
 	char *dst = NULL;
-	size_t i, inc, idx, dst_idx, dst_len;
+	size_t i, inc, idx, dst_idx;
 
-	if (len)
+	dst = alloc_output_buffer_from_baseXX(ptr, len, conv);
+
+	if (dst)
 	{
-		tmp = strchr(ptr, PADDING) ?: ptr + len;
+		i = idx = dst_idx = 0;
 
-		if (tmp - ptr)
+		while (idx < len)
 		{
-			dst_len = ((tmp - ptr) + 7) / 8 * conv->base_bits + 1;
-			// TODO Idkw, but if I use malloc here, valgrind complains...
-			dst = calloc(dst_len, 1);
+			c = ptr[idx];
+			inc = byte_from_baseXX(c, dst, &dst_idx, printable, conv, i);
+			i = (i + inc) % conv->conv_array_size;
+			++idx;
+		}
+
+		if (ptr_len)
+		{
+			*ptr_len = dst_idx;
 		}
 	}
-
-	i = idx = dst_idx = 0;
-
-	while (idx < len)
-	{
-		c = ptr[idx];
-		inc = byte_from_baseXX(c, dst, &dst_idx, printable, conv, i);
-		i = (i + inc) % conv->conv_array_size;
-		++idx;
-	}
-
-	if (ptr_len)
-	{
-		*ptr_len = dst_idx;
-	}
-
-	// TODO: see above comment about valgrind
-	//if (dst)
-	//{
-	//	memset(&dst[dst_idx], 0, dst_len - dst_idx);
-	//}
 
 	return dst;
 }
