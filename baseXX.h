@@ -24,7 +24,6 @@ typedef struct baseXX_byte_conversion_t baseXX_byte_conversion_t;
 struct baseXX_char_range_t {
 	char lower;
 	char upper;
-	char diff;
 } __PACKED;
 
 struct baseXX_byte_conversion_t {

@@ -81,12 +81,10 @@ static baseXX_char_range_t base32_char_ranges[] =
 	{
 		.lower = 'A',
 		.upper = 'Z',
-		.diff = 'A',
 	},
 	{
 		.lower = '2',
 		.upper = '7',
-		.diff = 'Z' - 'A' - 1,
 	},
 };
 

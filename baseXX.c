@@ -52,10 +52,10 @@ static char byte_to_baseXX(const char *ptr, size_t len, size_t ptr_idx,
 	return conv->alphabet[c[0] | c[1]];
 }
 
-static char func(char c, baseXX_conversion_t *conv)
+static char get_value(char c, baseXX_conversion_t *conv)
 {
 	size_t i;
-	char diff = 0;
+	char value = -1, v = 0;
 	baseXX_char_range_t *char_range;
 
 	for (i = 0; i < conv->char_range_size; ++i)
@@ -64,28 +64,27 @@ static char func(char c, baseXX_conversion_t *conv)
 
 		if (c >= char_range->lower && c <= char_range->upper)
 		{
-			diff = char_range->diff;
+			value = v + (c - char_range->lower);
 			break;
 		}
+		v += (char_range->upper - char_range->lower) + 1;
 	}
 
-	return diff;
+	return value;
 }
 
 static size_t byte_from_baseXX(char c, char *dst, size_t *dst_idx,
 		bool *printable, baseXX_conversion_t *conv, size_t byte_conv_idx)
 {
 	size_t i;
+	char cc, v;
 	int ret = 0;
-	char cc, diff;
 	baseXX_byte_conversion_t *byte_conv = &conv->conv_array[byte_conv_idx];
 
-	diff = func(c, conv);
+	v = get_value(c, conv);
 
-	if (diff)
+	if (v != -1)
 	{
-		c -= diff;
-
 		for (i = 0; i < 2; ++i)
 		{
 			if (!byte_conv->mask[i])
@@ -95,15 +94,15 @@ static size_t byte_from_baseXX(char c, char *dst, size_t *dst_idx,
 
 			if (byte_conv->shift[i] < 0)
 			{
-				cc = c << -byte_conv->shift[i];
+				cc = v << -byte_conv->shift[i];
 			}
 			else if (byte_conv->shift[i] > 0)
 			{
-				cc = c >> byte_conv->shift[i];
+				cc = v >> byte_conv->shift[i];
 			}
 			else
 			{
-				cc = c;
+				cc = v;
 			}
 
 			dst[*dst_idx + i] |= (cc & byte_conv->mask[i]);
