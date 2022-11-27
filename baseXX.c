@@ -132,13 +132,13 @@ static size_t byte_from_baseXX(char c, char *dst, size_t *dst_idx,
 char *str_to_baseXX(const char *ptr, size_t len, baseXX_conversion_t *conv)
 {
 	char *dst;
-	size_t i, idx_in, idx_out, end, base_bits;
+	size_t i, idx_in, idx_out, end, offset;
 
+	offset = conv->conv_array_size * conv->base_bits / 8;
 	dst = alloc_output_buffer_to_baseXX(len, conv->base_bits);
 
-	base_bits= conv->base_bits;
 	idx_in = idx_out = 0;
-	end = ((len + base_bits - 1) / base_bits) * base_bits;
+	end = ((len + offset - 1) / offset) * offset;
 
 	while (idx_in < end)
 	{
@@ -150,7 +150,7 @@ char *str_to_baseXX(const char *ptr, size_t len, baseXX_conversion_t *conv)
 				dst[idx_out++] = '\n';
 			}
 		}
-		idx_in += base_bits;
+		idx_in += offset;
 	}
 
 	return dst;
