@@ -20,6 +20,9 @@ $(LIB): LDFLAGS += -shared
 $(LIB): $(LIB_OBJS)
 	$(CC) $(CPPFLAGS) $(CFLAGS) -shared -o $@ $^ $(LDFLAGS) $(LDLIBS)
 
+run-tests: base_test
+	LD_LIBRARY_PATH=. $(BINARY) ./base_test
+
 clean:
 	@rm -f $(TARGETS) $(LIB) *.o
 
