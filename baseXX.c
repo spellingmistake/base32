@@ -10,13 +10,16 @@ static char *alloc_output_buffer_to_baseXX(size_t len, size_t bits_per_chunk,
 	size_t modulus;
 	char *dst = NULL;
 
-	/* output characters only */
-	len = (len * 8 + (base_bits - 1)) / base_bits;
-	/* padding */
-	modulus = len % (bits_per_chunk / base_bits);
-	len += modulus ? (bits_per_chunk / base_bits) - modulus : 0;
-	/* line breaks */
-	len += ((len + OUTPUT_WIDTH - 1) / OUTPUT_WIDTH) - 1;
+	if (len)
+	{
+		/* output characters only */
+		len = (len * 8 + (base_bits - 1)) / base_bits;
+		/* padding */
+		modulus = len % (bits_per_chunk / base_bits);
+		len += modulus ? (bits_per_chunk / base_bits) - modulus : 0;
+		/* line breaks */
+		len += ((len + OUTPUT_WIDTH - 1) / OUTPUT_WIDTH) - 1;
+	}
 
 	/* + 1 for the terminating '\0' */
 	dst = malloc(len + 1);
