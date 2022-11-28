@@ -57,12 +57,16 @@ static char *alloc_output_buffer_from_baseXX(const char *ptr, size_t len,
 			len -= newlines;
 			/* mapped onto byte size */
 			len = (len * base_bits + base_bits - 1) / 8;
-
-			/* the output buffer from baseXX is logically or'd repeatedly;
-			 * hence it is crucial to work on properly zeroed memory */
-			dst = calloc(len + 1, 1);
+		}
+		else
+		{
+			len = 0;
 		}
 	}
+
+	/* the output buffer from baseXX is logically or'd repeatedly;
+	 * hence it is crucial to work on properly zeroed memory */
+	dst = calloc(len + 1, 1);
 
 	return dst;
 }
