@@ -2,3 +2,4 @@
 *.o
 *cscope*
 base_test
+.gdb_history
