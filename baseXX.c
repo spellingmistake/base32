@@ -118,19 +118,19 @@ static char byte_to_baseXX(const char *ptr, size_t len, size_t ptr_idx,
 static char get_value(char c, baseXX_conversion_t *conv)
 {
 	size_t i;
-	char value = -1, v = 0;
-	baseXX_char_range_t *char_range;
+	char l, u, value = -1, v = 0;
 
 	for (i = 0; i < conv->char_range_size; ++i)
 	{
-		char_range = &conv->char_ranges[i];
+		l = conv->alphabet[conv->char_ranges[i].lower];
+		u = conv->alphabet[conv->char_ranges[i].upper];
 
-		if (c >= char_range->lower && c <= char_range->upper)
+		if (c >= l && c <= u)
 		{
-			value = v + (c - char_range->lower);
+			value = v + (c - l);
 			break;
 		}
-		v += (char_range->upper - char_range->lower) + 1;
+		v += (u - l) + 1;
 	}
 
 	return value;

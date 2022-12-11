@@ -5,6 +5,9 @@
 
 char *str_to_base64(const char *ptr, size_t len);
 char *base64_to_str(const char *ptr, size_t len, size_t *ptr_len,
-	bool *printable);
+		bool *printable);
+char *str_to_base64_fn_safe(const char *ptr, size_t len);
+char *base64_to_str_fn_safe(const char *ptr, size_t len, size_t *ptr_len,
+		bool *printable);
 
 #endif	/* #ifndef _BASE64_H_ */

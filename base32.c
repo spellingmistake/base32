@@ -1,9 +1,14 @@
 #include "base32.h"
 
-static char base32_alphabeth[] = {
+static const char base32_alphabets[] = {
+	/* Base 32 Encoding */
 	'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O',
 	'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '2', '3', '4', '5',
 	'6', '7', PADDING,
+	/* Base 32 Encoding with Extended Hex Alphabet */
+	'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E',
+	'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T',
+	'U', 'V', PADDING,
 };
 
 /*
@@ -79,23 +84,45 @@ static baseXX_byte_conversion_t base32_byte_conversion[] =
 static baseXX_char_range_t base32_char_ranges[] =
 {
 	{
-		.lower = 'A',
-		.upper = 'Z',
+		.lower = 0,
+		.upper = 25,
 	},
 	{
-		.lower = '2',
-		.upper = '7',
+		.lower = 26,
+		.upper = 31,
 	},
 };
 
-baseXX_conversion_t base32_conversion = {
-	.alphabet = base32_alphabeth,
-	.alphabet_size = sizeof(base32_alphabeth),
+static baseXX_char_range_t base32_char_ranges_ext_hex[] =
+{
+	{
+		.lower = 0,
+		.upper = 9,
+	},
+	{
+		.lower = 10,
+		.upper = 31,
+	},
+};
+
+static baseXX_conversion_t base32_conversion = {
+	.alphabet = base32_alphabets,
+	.alphabet_size = sizeof(base32_alphabets) / 2,
 	.base_bits = 5,
 	.conv_array_size = ARRAY_SIZE(base32_byte_conversion),
 	.char_range_size = ARRAY_SIZE(base32_char_ranges),
 	.conv_array = base32_byte_conversion,
 	.char_ranges = base32_char_ranges,
+};
+
+static baseXX_conversion_t base32_conversion_ext_hex = {
+	.alphabet = &base32_alphabets[sizeof(base32_alphabets) / 2],
+	.alphabet_size = sizeof(base32_alphabets) / 2,
+	.base_bits = 5,
+	.conv_array_size = ARRAY_SIZE(base32_byte_conversion),
+	.char_range_size = ARRAY_SIZE(base32_char_ranges_ext_hex),
+	.conv_array = base32_byte_conversion,
+	.char_ranges = base32_char_ranges_ext_hex,
 };
 
 char *str_to_base32(const char *ptr, size_t len)
@@ -107,4 +134,16 @@ char *base32_to_str(const char *ptr, size_t len, size_t *ptr_len,
 	bool *printable)
 {
 	return baseXX_to_str(ptr, len, ptr_len, printable, &base32_conversion);
+}
+
+char *str_to_base32_ext_hex(const char *ptr, size_t len)
+{
+	return str_to_baseXX(ptr, len, &base32_conversion_ext_hex);
+}
+
+char *base32_to_str_ext_hex(const char *ptr, size_t len, size_t *ptr_len,
+	bool *printable)
+{
+	return baseXX_to_str(ptr, len, ptr_len, printable,
+			&base32_conversion_ext_hex);
 }

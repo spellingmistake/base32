@@ -42,6 +42,16 @@ static test_vectors_t tv_base32[] = {
 	{ "foobar", "MZXW6YTBOI======", true },
 };
 
+static test_vectors_t tv_base32_ext[] = {
+	{ "", "", true },
+	{ "f", "CO======", true },
+	{ "fo", "CPNG====", true },
+	{ "foo", "CPNMU===", true },
+	{ "foob", "CPNMUOG=", true },
+	{ "fooba", "CPNMUOJ1", true },
+	{ "foobar", "CPNMUOJ1E8======", true },
+};
+
 static void test_baseXX(test_vectors_t *tvs, size_t i, const char *base,
 		bool verbose, char *(*str_to_baseXX)(const char *, size_t len),
 		char *(*baseXX_to_str)(const char *, size_t, size_t *, bool *))
@@ -56,6 +66,7 @@ static void test_baseXX(test_vectors_t *tvs, size_t i, const char *base,
 
 	assert(tvs[i].printable == printable);
 	assert(len == strlen(tvs[i].input));
+	assert(!memcmp(bXX, tvs[i].expected, len));
 	assert(!memcmp(buf, tvs[i].input, len));
 	fprintf(stdout, "%s test vector %zu ok", base, i + 1);
 	if (verbose)
@@ -74,7 +85,8 @@ static void test_base64(void)
 
 	for (i = 0; i < sizeof(tv_base64) / sizeof(tv_base64[0]); ++i)
 	{
-		test_baseXX(tv_base64, i, __func__, false, str_to_base64, base64_to_str);
+		test_baseXX(tv_base64, i, __func__, false, str_to_base64,
+				base64_to_str);
 	}
 }
 
@@ -84,7 +96,19 @@ static void test_base32(void)
 
 	for (i = 0; i < sizeof(tv_base32) / sizeof(tv_base32[0]); ++i)
 	{
-		test_baseXX(tv_base32, i, __func__, false, str_to_base32, base32_to_str);
+		test_baseXX(tv_base32, i, __func__, false, str_to_base32,
+				base32_to_str);
+	}
+}
+
+static void test_base32_ext_hex(void)
+{
+	size_t i;
+
+	for (i = 0; i < sizeof(tv_base32_ext) / sizeof(tv_base32_ext[0]); ++i)
+	{
+		test_baseXX(tv_base32_ext, i, __func__, false, str_to_base32_ext_hex,
+				base32_to_str_ext_hex);
 	}
 }
 
@@ -92,5 +116,6 @@ int main(int argc __UNUSED, char *argv[] __UNUSED)
 {
 	test_base64();
 	test_base32();
+	test_base32_ext_hex();
 	return 0;
 }

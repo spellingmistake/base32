@@ -1,11 +1,18 @@
 #include "base64.h"
 
-static char base64_alphabeth[] = {
+static const char base64_alphabets[] = {
+	/* Base 64 Encoding */
 	'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O',
 	'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd',
 	'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's',
 	't', 'u', 'v', 'w', 'x', 'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7',
 	'8', '9', '+', '/', PADDING,
+	/* Base 64 Encoding with URL and Filename Safe Alphabet */
+	'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O',
+	'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd',
+	'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's',
+	't', 'u', 'v', 'w', 'x', 'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7',
+	'8', '9', '-', '_', PADDING,
 };
 
 /*
@@ -52,30 +59,41 @@ static baseXX_byte_conversion_t base64_byte_conversion[] =
 static baseXX_char_range_t base64_char_ranges[] =
 {
 	{
-		.lower = 'A',
-		.upper = 'Z',
+
+		.lower = 0,
+		.upper = 25,
 	},
 	{
-		.lower = 'a',
-		.upper = 'z',
+		.lower = 26,
+		.upper = 51,
 	},
 	{
-		.lower = '0',
-		.upper = '9',
+		.lower = 52,
+		.upper = 61,
 	},
 	{
-		.lower = '+',
-		.upper = '+',
+		.lower = 62,
+		.upper = 62,
 	},
 	{
-		.lower = '/',
-		.upper = '/',
+		.lower = 63,
+		.upper = 63,
 	},
 };
 
-baseXX_conversion_t base64_conversion = {
-	.alphabet = base64_alphabeth,
-	.alphabet_size = sizeof(base64_alphabeth),
+static baseXX_conversion_t base64_conversion = {
+	.alphabet = base64_alphabets,
+	.alphabet_size = sizeof(base64_alphabets) / 2,
+	.base_bits = 6,
+	.conv_array_size = ARRAY_SIZE(base64_byte_conversion),
+	.char_range_size = ARRAY_SIZE(base64_char_ranges),
+	.conv_array = base64_byte_conversion,
+	.char_ranges = base64_char_ranges,
+};
+
+static baseXX_conversion_t base64_conversion_fn_safe = {
+	.alphabet = &base64_alphabets[sizeof(base64_alphabets) / 2],
+	.alphabet_size = sizeof(base64_alphabets) / 2,
 	.base_bits = 6,
 	.conv_array_size = ARRAY_SIZE(base64_byte_conversion),
 	.char_range_size = ARRAY_SIZE(base64_char_ranges),
@@ -92,4 +110,16 @@ char *base64_to_str(const char *ptr, size_t len, size_t *ptr_len,
 	bool *printable)
 {
 	return baseXX_to_str(ptr, len, ptr_len, printable, &base64_conversion);
+}
+
+char *str_to_base64_fn_safe(const char *ptr, size_t len)
+{
+	return str_to_baseXX(ptr, len, &base64_conversion_fn_safe);
+}
+
+char *base64_to_str_fn_safe(const char *ptr, size_t len, size_t *ptr_len,
+	bool *printable)
+{
+	return baseXX_to_str(ptr, len, ptr_len, printable,
+			&base64_conversion_fn_safe);
 }

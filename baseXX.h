@@ -2,6 +2,7 @@
 #define _BASEXX_H_
 
 #include <stdio.h>
+#include <stdint.h>
 #include <stdbool.h>
 
 #ifndef __UNUSED
@@ -22,8 +23,8 @@ typedef struct baseXX_char_range_t baseXX_char_range_t;
 typedef struct baseXX_byte_conversion_t baseXX_byte_conversion_t;
 
 struct baseXX_char_range_t {
-	char lower;
-	char upper;
+	uint8_t lower;
+	uint8_t upper;
 } __PACKED;
 
 struct baseXX_byte_conversion_t {
@@ -33,7 +34,7 @@ struct baseXX_byte_conversion_t {
 } __PACKED;
 
 struct baseXX_conversion_t {
-	char *alphabet;
+	const char *alphabet;
 	size_t alphabet_size;
 	size_t base_bits;
 	size_t conv_array_size;
